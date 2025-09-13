@@ -5,20 +5,14 @@ import Message from "./Message";
 import { Routes, Route, Link } from "react-router-dom";
 import ChartDemo from "./pages/ChartDemo";
 import ChartBar from "./components/ChartBar";
+import Webcam from "./components/Webcam";
+import Microphone from "./components/Microphone";
 
 function Home() {
   const [count, setCount] = useState(0);
 
   return (
     <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank" rel="noreferrer">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
 
       <h1>Vite + React</h1>
 
@@ -40,7 +34,15 @@ function Home() {
   );
 }
 
-
+export function WebcamPage() {
+  return (
+    <div>
+      <h2>SYBAU BITCH</h2>
+      <Webcam />
+      <Microphone />
+    </div>
+  );
+}
 
 export default function App() {
   return (
@@ -48,11 +50,13 @@ export default function App() {
       <nav style={{ padding: 16 }}>
         <Link to="/" style={{ marginRight: 12 }}>Home</Link>
         <Link to="/chart">Chart</Link>
+        <Link to="/webcam" style={{ marginLeft: 12 }}>Webcam</Link>
       </nav>
 
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/chart" element={<ChartDemo />} />
+        <Route path="/webcam" element={<WebcamPage />} />
         {/* later: <Route path="/chart/:id" element={<ChartDemo />} /> */}
       </Routes>
     </>

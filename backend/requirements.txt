@@ -1,0 +1,10 @@
+numpy
+pandas
+tqdm
+rank_bm25
+sentence-transformers
+faiss-cpu
+unstructured[local-inference]   # or pypdf, markdown-it-py, bs4, etc.
+rapidfuzz
+nltk
+openai                          # or litellm, ollama, vllm client
