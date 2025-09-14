@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState } from "react";
 
-export default function Webcam() {
+export default function Webcam({ onEmotion }) {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const [result, setResult] = useState(null);
@@ -40,6 +40,10 @@ export default function Webcam() {
             });
             const data = await response.json();
             setResult(data.result || JSON.stringify(data));
+            if (data.result && data.result.startsWith("Detected emotion: ")) {
+              const detectedEmotion = data.result.replace("Detected emotion: ", "").trim();
+              if (onEmotion) onEmotion(detectedEmotion);
+            }
           } catch (err) {
             setResult("Error contacting backend");
           }

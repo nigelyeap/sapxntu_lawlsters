@@ -1,21 +1,25 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
-export default function Microphone() {
-  const [listening, setListening] = useState(false);
+export default function Microphone({ onTranscript, listening }) {
   const [transcript, setTranscript] = useState("");
   const [interim, setInterim] = useState("");
   const recognitionRef = useRef(null);
 
-  const startListening = () => {
+  // Call onTranscript only when transcript changes, not during render
+  useEffect(() => {
+    if (onTranscript) onTranscript(transcript);
+  }, [transcript, onTranscript]);
+
+  useEffect(() => {
+    console.log(listening)
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      alert("Speech Recognition API not supported in this browser.");
-      return;
-    }
+    if (!SpeechRecognition) return;
+
     const recognition = new SpeechRecognition();
     recognition.continuous = true;
     recognition.interimResults = true;
     recognition.lang = "en-US";
+
     recognition.onresult = (event) => {
       let interimTranscript = "";
       let finalTranscript = "";
@@ -26,48 +30,27 @@ export default function Microphone() {
           interimTranscript += event.results[i][0].transcript;
         }
       }
-      if (finalTranscript) setTranscript(prev => prev + finalTranscript);
+      if (finalTranscript) {
+        setTranscript(prev => prev + finalTranscript);
+      }
       setInterim(interimTranscript);
     };
-    recognition.onend = () => {
-      setListening(false);
-      setInterim("");
-      // Optionally send transcript to backend here
-      sendTranscriptToBackend(transcript);
-    };
+
     recognitionRef.current = recognition;
-    recognition.start();
-    setListening(true);
-  };
 
-  const stopListening = () => {
-    if (recognitionRef.current) {
-      recognitionRef.current.stop();
-      setListening(false);
+    if (listening) {
+      recognition.start();
+    } else {
+      recognition.stop();
     }
-  };
 
-  const sendTranscriptToBackend = async (text) => {
-    try {
-      const response = await fetch("http://localhost:5000/process-audio", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ transcript: text }),
-      });
-      const data = await response.json();
-      // Optionally handle backend response
-      // e.g., setTranscript(data.result || text);
-    } catch (err) {
-      // Handle error
-    }
-  };
+    return () => {
+      recognition.stop();
+    };
+  }, [listening]);
 
   return (
     <div>
-      <h3>Microphone</h3>
-      <button onClick={listening ? stopListening : startListening}>
-        {listening ? "Stop Listening" : "Start Listening"}
-      </button>
       <div>
         <strong>Transcript:</strong>
         <div style={{ minHeight: 40, border: "1px solid #ccc", padding: 8, marginTop: 8 }}>

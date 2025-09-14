@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import reactLogo from "./assets/react.svg";
 import "./App.css";
 import Message from "./Message";
@@ -35,11 +35,63 @@ function Home() {
 }
 
 export function WebcamPage() {
+  const [emotion, setEmotion] = useState("");
+  const [transcript, setTranscript] = useState("");
+  const [advice, setAdvice] = useState("");
+  const [listening, setListening] = useState(false);
+  const intervalRef = useRef(null);
+  const ttsPlayedRef = useRef(false);
+  const playTTS = async () => {
+  if (ttsPlayedRef.current) return;
+  ttsPlayedRef.current = true;
+  const audio = new Audio("http://localhost:5000/api/tts");
+  audio.play();
+  setTimeout(() => { ttsPlayedRef.current = false; }, 2000); // reset after 2s
+};  
+
+  useEffect(() => {
+    if (listening) {
+      intervalRef.current = setInterval(() => {
+        fetch("http://localhost:5000/api/advice", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ emotion, transcript }),
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data.advice) {
+  setAdvice(prev => prev.includes(data.advice) ? prev : prev + "\n" + data.advice);
+}
+          })
+          .catch(() => setAdvice(prev => prev + "\nError contacting backend"));
+      }, 5000);
+    } else {
+      clearInterval(intervalRef.current);
+    }
+    return () => clearInterval(intervalRef.current);
+  }, [listening, emotion, transcript]);
+
   return (
     <div>
-      <h2>SYBAU BITCH</h2>
-      <Webcam />
-      <Microphone />
+      <h2>Real-time Service Grading</h2>
+      <Webcam onEmotion={setEmotion} />
+      <Microphone onTranscript={setTranscript} listening={listening} />
+      <div>
+        <h3>Advice:</h3>
+        <pre>{advice}</pre>
+      </div>
+      
+      <button
+  onClick={() => {
+    setListening(l => {
+      if (!l) playTTS(); // Only play if we are starting (was false)
+      console.log("Button clicked, listening now:", !l);
+      return !l;
+    });
+  }}
+>
+      {listening ? "Stop Listening" : "Start Listening"}
+    </button>
     </div>
   );
 }
