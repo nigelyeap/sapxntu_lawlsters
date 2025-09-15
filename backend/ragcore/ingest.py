@@ -1,7 +1,18 @@
 # ragcore/ingest.py
 from pathlib import Path
 from unstructured.partition.auto import partition
-from nltk.tokenize import sent_tokenize
+try:
+    from nltk.tokenize import sent_tokenize as _nltk_sent_tokenize
+    def sent_tokenize(text: str):
+        try:
+            return _nltk_sent_tokenize(text)
+        except LookupError:
+            # Fallback if NLTK punkt models are missing
+            return [s.strip() for s in text.replace("\r", "\n").split("\n") if s.strip()]
+except Exception:
+    # Minimal fallback: split by newlines if nltk is unavailable
+    def sent_tokenize(text: str):
+        return [s.strip() for s in text.replace("\r", "\n").split("\n") if s.strip()]
 
 def clean_text(txt: str) -> str:
     # drop boilerplate, normalize whitespace, fix OCR quirks
@@ -10,10 +21,43 @@ def clean_text(txt: str) -> str:
     return txt
 
 def parse_to_text(path: Path) -> str:
-    # works for PDF, DOCX, HTML, MD, TXT
-    elements = partition(filename=str(path))
-    txt = "\n".join(e.text for e in elements if e.text)
-    return clean_text(txt)
+    """Extract text from common document types.
+
+    For PDFs, prefer a pure-Python fallback (PyPDF2) to avoid system
+    dependencies like poppler/pdfinfo required by pdf2image.
+    """
+    suffix = path.suffix.lower()
+    if suffix == ".pdf":
+        # Try lightweight PyPDF2 first
+        try:
+            import PyPDF2  # type: ignore
+            txt_parts = []
+            with open(path, "rb") as f:
+                reader = PyPDF2.PdfReader(f)
+                for page in reader.pages:
+                    try:
+                        t = page.extract_text() or ""
+                    except Exception:
+                        t = ""
+                    if t:
+                        txt_parts.append(t)
+            return clean_text("\n".join(txt_parts))
+        except ImportError:
+            # Fall back to unstructured; may raise if poppler not installed
+            try:
+                elements = partition(filename=str(path))
+                txt = "\n".join(e.text for e in elements if getattr(e, "text", None))
+                return clean_text(txt)
+            except Exception:
+                # Gracefully skip PDFs if system deps missing
+                return ""
+    # Non-PDF: use unstructured
+    try:
+        elements = partition(filename=str(path))
+        txt = "\n".join(e.text for e in elements if getattr(e, "text", None))
+        return clean_text(txt)
+    except Exception:
+        return ""
 
 def chunk_text(txt: str, max_tokens=500, overlap=80) -> list[dict]:
     # naïve sentence-based chunking (swap with tiktoken if you prefer token-accurate)

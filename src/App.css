@@ -1,7 +1,7 @@
 #root {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 1rem 2rem; /* reduce top padding to raise content */
   text-align: center;
 }
 
@@ -39,4 +39,118 @@
 
 .read-the-docs {
   color: #888;
+}
+
+/* Career Path styles */
+.cp-container {
+  text-align: left;
+  color: #0f172a; /* ensure readable on light backgrounds even in dark mode */
+  background: #ffffff; /* ensure contrast against global dark backgrounds */
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+}
+.cp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.cp-controls {
+  display: flex;
+  gap: 8px;
+}
+.cp-btn {
+  padding: 8px 12px;
+  border: 1px solid #cbd5e1;
+  background: #0ea5e9;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.cp-btn.secondary {
+  background: #64748b;
+}
+.cp-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.cp-error {
+  margin-top: 8px;
+  color: #b91c1c;
+}
+.cp-table-wrap {
+  margin-top: 16px;
+  overflow: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  max-height: 60vh; /* enable internal scroll so headers can stick */
+}
+.cp-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.95rem;
+}
+.cp-table thead th {
+  position: sticky;
+  top: 0;
+  background: #f8fafc;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+  padding: 10px 12px;
+  white-space: nowrap;
+  color: #0f172a;
+  z-index: 2; /* stay above body cells */
+  box-shadow: 0 1px 0 #e5e7eb, 0 2px 4px rgba(15, 23, 42, 0.04);
+}
+.cp-table tbody td {
+  border-top: 1px solid #f1f5f9;
+  padding: 10px 12px;
+  vertical-align: top;
+  word-break: break-word;
+  color: #0f172a;
+}
+.cp-table tbody tr:nth-child(odd) td {
+  background: #f3f4f6; /* stronger contrast */
+}
+.cp-table tbody tr:nth-child(even) td {
+  background: #ffffff;
+}
+.cp-table tbody tr:hover td {
+  background: #e8eefc; /* hover highlight */
+}
+.cp-chip {
+  display: inline-block;
+  margin: 2px 6px 2px 0;
+  padding: 4px 8px;
+  font-size: 0.85em;
+  line-height: 1;
+  border-radius: 999px;
+  background: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+}
+.cp-md-fallback {
+  margin-top: 16px;
+}
+.cp-md-fallback pre {
+  white-space: pre-wrap;
+  background: #f8f8f8;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #eee;
+  color: #0f172a;
+}
+.cp-chart {
+  margin-top: 24px;
+  text-align: center;
+}
+.cp-chart img {
+  max-width: 100%;
+  border: 1px solid #eee;
+  background: white;
+}
+.cp-chart-link {
+  margin-top: 8px;
 }

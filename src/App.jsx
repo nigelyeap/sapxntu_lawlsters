@@ -4,9 +4,11 @@ import "./App.css";
 import Message from "./Message";
 import { Routes, Route, Link } from "react-router-dom";
 import ChartDemo from "./pages/ChartDemo";
+import CareerPath from "./pages/CareerPath";
 import ChartBar from "./components/ChartBar";
 import Webcam from "./components/Webcam";
 import Microphone from "./components/Microphone";
+import UploadPDF from "./pages/UploadPDF";
 
 function Home() {
   const [count, setCount] = useState(0);
@@ -44,7 +46,7 @@ export function WebcamPage() {
   const playTTS = async () => {
   if (ttsPlayedRef.current) return;
   ttsPlayedRef.current = true;
-  const audio = new Audio("http://localhost:5000/api/tts");
+  const audio = new Audio("/api/tts");
   audio.play();
   setTimeout(() => { ttsPlayedRef.current = false; }, 2000); // reset after 2s
 };  
@@ -52,7 +54,7 @@ export function WebcamPage() {
   useEffect(() => {
     if (listening) {
       intervalRef.current = setInterval(() => {
-        fetch("http://localhost:5000/api/advice", {
+        fetch("/api/advice", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ emotion, transcript }),
@@ -101,14 +103,18 @@ export default function App() {
     <>
       <nav style={{ padding: 16 }}>
         <Link to="/" style={{ marginRight: 12 }}>Home</Link>
-        <Link to="/chart">Chart</Link>
-        <Link to="/webcam" style={{ marginLeft: 12 }}>Webcam</Link>
+        <Link to="/chart" style={{ marginRight: 12 }}>Chart</Link>
+        <Link to="/webcam" style={{ marginRight: 12 }}>Webcam</Link>
+        <Link to="/career" style={{ marginRight: 12 }}>Career Path</Link>
+        <Link to="/upload" style={{ marginRight: 12 }}>Upload PDFs</Link>
       </nav>
 
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/chart" element={<ChartDemo />} />
         <Route path="/webcam" element={<WebcamPage />} />
+        <Route path="/career" element={<CareerPath />} />
+        <Route path="/upload" element={<UploadPDF />} />
         {/* later: <Route path="/chart/:id" element={<ChartDemo />} /> */}
       </Routes>
     </>

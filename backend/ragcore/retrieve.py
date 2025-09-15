@@ -2,15 +2,7 @@
 from rank_bm25 import BM25Okapi
 from datetime import datetime
 from ragcore.embed import VectorIndex
-from ragcore.ingest import ingest_dir
 import numpy as np
-# load and chunk your documents
-chunks = ingest_dir("data/raw")
-if not chunks:
-    raise ValueError("No data found in data/raw. Please add documents to index.")
-# build embeddings index
-vec = VectorIndex("intfloat/e5-base")
-vec.build(chunks)
 
 class HybridRetriever:
     def __init__(self, chunks: list[dict], vec: VectorIndex):
