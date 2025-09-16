@@ -1,4 +1,4 @@
-# SAP X NTU Team Lawlsters (Figma Make Export)
+# SAP X NTU Team Lawlsters 
 
 This is our repository for our submission for SAP x NTU's hackathon. You will need to set up dependencies before running the project.
 
