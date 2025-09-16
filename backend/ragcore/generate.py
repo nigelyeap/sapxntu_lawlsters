@@ -17,7 +17,7 @@ def build_prompt(query: str, context_chunks: list[  dict]):
     return SYSTEM, user
 
 def call_llm(query: str, context_chunks: list[dict], model="gpt-4o-mini"):
-    client = OpenAI(api_key="yourkeyhere")
+    client = OpenAI(api_key="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")
     system, user = build_prompt(query, context_chunks)
     resp = client.chat.completions.create(
         model=model,

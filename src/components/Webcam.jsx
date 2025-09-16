@@ -4,6 +4,7 @@ export default function Webcam({ onEmotion }) {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const [result, setResult] = useState(null);
+  const [detectedEmotion, setDetectedEmotion] = useState("");
 
   useEffect(() => {
     let intervalId;
@@ -11,13 +12,14 @@ export default function Webcam({ onEmotion }) {
     async function enableWebcam() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-        }
-      } catch (err) {
-        console.error("Error accessing webcam:", err);
+        if (videoRef.current && stream) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.onloadedmetadata = startCaptureInterval;
       }
+    } catch (err) {
+      console.error("Error accessing webcam:", err);
     }
+  }
     enableWebcam();
 
     // Start interval after video is ready
@@ -41,8 +43,9 @@ export default function Webcam({ onEmotion }) {
             const data = await response.json();
             setResult(data.result || JSON.stringify(data));
             if (data.result && data.result.startsWith("Detected emotion: ")) {
-              const detectedEmotion = data.result.replace("Detected emotion: ", "").trim();
-              if (onEmotion) onEmotion(detectedEmotion);
+              const emotion = data.result.replace("Detected emotion: ", "").trim();
+              setDetectedEmotion(emotion);
+              if (onEmotion) onEmotion(emotion);
             }
           } catch (err) {
             setResult("Error contacting backend");
@@ -51,9 +54,7 @@ export default function Webcam({ onEmotion }) {
       }, 1000); // every second
     }
 
-    if (videoRef.current) {
-      videoRef.current.onloadedmetadata = startCaptureInterval;
-    }
+    // (Removed invalid reference to 'stream' here)
 
     return () => {
       if (videoRef.current && videoRef.current.srcObject) {
@@ -67,6 +68,11 @@ export default function Webcam({ onEmotion }) {
     <div>
       <video ref={videoRef} autoPlay playsInline width={400} height={300} />
       <canvas ref={canvasRef} style={{ display: "none" }} />
+      {detectedEmotion && (
+        <div style={{ marginTop: 12, fontWeight: 600, color: '#2c3e50', fontSize: 18 }}>
+          Detected Emotion: <span style={{ color: '#0074d9' }}>{detectedEmotion}</span>
+        </div>
+      )}
       <div>
         <h3>Processed Result:</h3>
         <pre>{result}</pre>
